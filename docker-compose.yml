@@ -1,0 +1,52 @@
+version: '3.8'
+networks:
+  website:
+    name: "website"
+
+services:
+  database:
+    image: mysql:5.7
+    container_name: "mysql-wordpress"
+    volumes:
+      - "./mysql/data:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks: ["website"]
+
+  wordpress:
+    image: wordpress:latest
+    container_name: "wordpress"
+    volumes: 
+      - "./:/var/www/html"
+    depends_on:
+      - database
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    networks: ["website"]
+    ports:
+      - "8000:80"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: "phpmyadmin-wordpress"
+    depends_on:
+      - database
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: somewordpress 
+    networks: ["website"]
+
+volumes:
+  database:
+  wordpress:
