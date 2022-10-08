@@ -7,32 +7,34 @@ services:
   database:
     image: mysql:5.7
     container_name: "mysql-wordpress"
-    volumes:
-      - "./mysql/data:/var/lib/mysql"
     restart: always
+    networks: ["website"]
+    ports:
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: somewordpress
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: wordpress
-    networks: ["website"]
+    volumes:
+      - "./mysql/data:/var/lib/mysql"
 
   wordpress:
     image: wordpress:latest
     container_name: "wordpress"
-    volumes: 
-      - "./:/var/www/html"
+    restart: always
     depends_on:
       - database
-    restart: always
+    networks: ["website"]
+    ports:
+      - "8000:80"
     environment:
       WORDPRESS_DB_HOST: database:3306
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
-    networks: ["website"]
-    ports:
-      - "8000:80"
+    volumes: 
+      - "./:/var/www/html"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -44,7 +46,7 @@ services:
       - '8080:80'
     environment:
       PMA_HOST: database
-      MYSQL_ROOT_PASSWORD: somewordpress 
+      MYSQL_ROOT_PASSWORD: somewordpress
     networks: ["website"]
 
 volumes:
